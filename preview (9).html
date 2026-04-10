@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Misión Verbal: Rumbo a la Luna v1.3.7</title>
+<style>
+  :root {
+    --bg1: #06142b;
+    --bg2: #0e224f;
+    --panel: rgba(9, 18, 40, 0.85);
+    --panel-soft: rgba(255,255,255,0.08);
+    --text: #ecf5ff;
+    --muted: #b8c7e6;
+    --accent: #73d7ff;
+    --accent2: #ffe27a;
+    --ok: #70e49b;
+    --warn: #ffd36d;
+    --bad: #ff8f8f;
+    --shadow: 0 16px 40px rgba(0,0,0,.35);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: "Trebuchet MS", Arial, sans-serif;
+    color: var(--text);
+    background:
+      radial-gradient(circle at 20% 15%, rgba(255,255,255,.18) 0 1px, transparent 1px 100%),
+      radial-gradient(circle at 80% 20%, rgba(255,255,255,.15) 0 1px, transparent 1px 100%),
+      radial-gradient(circle at 60% 80%, rgba(255,255,255,.18) 0 1px, transparent 1px 100%),
+      linear-gradient(180deg, var(--bg2), var(--bg1));
+    background-size: 180px 180px, 220px 220px, 260px 260px, auto;
+  }
+  .wrap {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 24px;
+  }
+  .hero {
+    text-align: center;
+    margin-bottom: 16px;
+  }
+  .hero h1 {
+    margin: 0 0 8px;
+    font-size: clamp(2rem, 4vw, 3rem);
+    letter-spacing: .03em;
+  }
+  .hero p { color: var(--muted); margin: 4px 0; }
+  .version { font-size: .95rem; color: var(--accent); }
+  .card {
+    background: var(--panel);
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 22px;
+    box-shadow: var(--shadow);
+    padding: 22px;
+    backdrop-filter: blur(8px);
+  }
+  .row { display: grid; gap: 18px; }
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px,1fr));
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  .stat {
+    background: var(--panel-soft);
+    border-radius: 16px;
+    padding: 12px 14px;
+    text-align: center;
+  }
+  .stat strong { display: block; color: var(--accent2); font-size: 1.1rem; }
+  .intro-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
+    gap: 12px;
+    margin: 14px 0 18px;
+  }
+  .mini {
+    background: rgba(255,255,255,.06);
+    border-radius: 16px;
+    padding: 12px;
+    text-align: left;
+  }
+  .mini h4 { margin: 0 0 8px; color: var(--accent2); }
+  .btns { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  button {
+    border: 0;
+    border-radius: 999px;
+    padding: 12px 18px;
+    font-size: 1rem;
+    cursor: pointer;
+    font-weight: 700;
+    background: linear-gradient(180deg, #8fe8ff, #5dc6ff);
+    color: #06203c;
+    box-shadow: 0 8px 20px rgba(76,198,255,.25);
+  }
+  button.secondary {
+    background: linear-gradient(180deg, #fff4ad, #ffd36d);
+    color: #382400;
+    box-shadow: 0 8px 20px rgba(255,211,109,.2);
+  }
+  button.ghost {
+    background: rgba(255,255,255,.1);
+    color: var(--text);
+    box-shadow: none;
+    border: 1px solid rgba(255,255,255,.12);
+  }
+  input[type="text"], select {
+    width: min(100%, 460px);
+    padding: 14px 16px;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,.18);
+    background: rgba(255,255,255,.08);
+    color: white;
+    font-size: 1rem;
+  }
+  select option { color: black; }
+  .analysis-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
+    gap: 12px;
+    margin: 18px 0;
+  }
+  .field {
+    text-align: left;
+    background: rgba(255,255,255,.04);
+    border-radius: 16px;
+    padding: 12px;
+  }
+  .field label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--accent2);
+    font-weight: 700;
+  }
+  .question {
+    background: rgba(255,255,255,.05);
+    border-radius: 18px;
+    padding: 18px;
+    margin: 16px 0 12px;
+    text-align: left;
+  }
+  .question-title {
+    text-align: center;
+    color: var(--accent2);
+    font-size: 1.2rem;
+    margin-bottom: 14px;
+  }
+  .linea {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 14px;
+    font-family: Consolas, Monaco, monospace;
+    font-size: 1.05rem;
+    margin: 7px 0;
+  }
+  .label { text-align: right; color: var(--accent); }
+  .help, .feedback {
+    margin-top: 14px;
+    border-radius: 16px;
+    padding: 14px;
+    text-align: left;
+  }
+  .help { background: rgba(255, 226, 122, .12); border: 1px solid rgba(255, 226, 122, .25); }
+  .feedback.ok { background: rgba(112, 228, 155, .12); border: 1px solid rgba(112, 228, 155, .3); }
+  .feedback.warn { background: rgba(255, 211, 109, .12); border: 1px solid rgba(255, 211, 109, .3); }
+  .feedback.bad { background: rgba(255, 143, 143, .12); border: 1px solid rgba(255, 143, 143, .3); }
+  .feedback h3 { margin-top: 0; }
+  .center { text-align: center; }
+  .small { color: var(--muted); font-size: .95rem; }
+  .hidden { display: none; }
+  .badge {
+    display: inline-block; padding: 6px 10px; border-radius: 999px; background: rgba(255,255,255,.08); color: var(--accent2);
+    font-size: .92rem;
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <h1>🚀 Misión Verbal: Rumbo a la Luna</h1>
+      <p>Practica los tiempos verbales del modo indicativo y ayuda a la nave a llegar a la Luna.</p>
+      <p class="version">Versión 1.3.7 · Build mision-verbal-luna_v1.3.7_2026-04-10</p>
+    </div>
+    <div id="app" class="card"></div>
+  </div>
+<script>
+const VERSION = '1.3.7';
+const BUILD_TAG = 'mision-verbal-luna_v1.3.7_2026-04-10';
+const verbos = ['hablar','saltar','caminar','estudiar','cantar','mirar','pasar','comer','beber','vivir'];
+const sujetos = ['yo','tú','él/ella','nosotros/as','vosotros/as','ellos/ellas'];
+const personasBonitas = [
+  'primera persona del singular',
+  'segunda persona del singular',
+  'tercera persona del singular',
+  'primera persona del plural',
+  'segunda persona del plural',
+  'tercera persona del plural'
+];
+const tiempos = [
+  { key:'presente', nombre:'presente' },
+  { key:'preteritoPerfectoCompuesto', nombre:'pretérito perfecto compuesto' },
+  { key:'imperfecto', nombre:'pretérito imperfecto' },
+  { key:'preteritoPerfectoSimple', nombre:'pretérito perfecto simple' },
+  { key:'pluscuamperfecto', nombre:'pretérito pluscuamperfecto' },
+  { key:'futuro', nombre:'futuro simple' }
+];
+const haberPresente = ['he','has','ha','hemos','habéis','han'];
+const haberImperfecto = ['había','habías','había','habíamos','habíais','habían'];
+const endings = {
+  ar: {
+    presente:['o','as','a','amos','áis','an'],
+    imperfecto:['aba','abas','aba','ábamos','abais','aban'],
+    preteritoPerfectoSimple:['é','aste','ó','amos','asteis','aron'],
+    participio:'ado'
+  },
+  er: {
+    presente:['o','es','e','emos','éis','en'],
+    imperfecto:['ía','ías','ía','íamos','íais','ían'],
+    preteritoPerfectoSimple:['í','iste','ió','imos','isteis','ieron'],
+    participio:'ido'
+  },
+  ir: {
+    presente:['o','es','e','imos','ís','en'],
+    imperfecto:['ía','ías','ía','íamos','íais','ían'],
+    preteritoPerfectoSimple:['í','iste','ió','imos','isteis','ieron'],
+    participio:'ido'
+  },
+  futuro:['é','ás','á','emos','éis','án']
+};
+
+const app = document.getElementById('app');
+let state = {
+  nombre: '',
+  energia: 50,
+  puntos: 0,
+  pistas: 0,
+  racha: 0,
+  missionType: null,
+  missionLabel: '',
+  questions: [],
+  currentIndex: 0,
+  usedHint: false,
+  finishedAt: null,
+  awaitingNext: false,
+  lastFeedback: null
+};
+
+function normalize(text){
+  return (text || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g,'')
+    .replace(/\s+/g,' ')
+    .trim();
+}
+function removeSubjectIfPresent(input, personaIndex){
+  const n = normalize(input);
+  const candidates = personaSubjectOptions(personaIndex).map(normalize);
+  for(const s of candidates){
+    if(n === s) return '';
+    if(n.startsWith(s + ' ')) return n.slice(s.length + 1).trim();
+  }
+  return n;
+}
+function personaSubjectOptions(personaIndex){
+  switch(personaIndex){
+    case 0: return ['yo'];
+    case 1: return ['tú', 'tu'];
+    case 2: return ['él', 'el', 'ella'];
+    case 3: return ['nosotros', 'nosotras', 'nosotros/as'];
+    case 4: return ['vosotros', 'vosotras', 'vosotros/as'];
+    case 5: return ['ellos', 'ellas', 'ellos/ellas'];
+    default: return [];
+  }
+}
+function shuffle(arr){
+  const a = [...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function randomChoice(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function tipoVerbo(verbo){ return verbo.endsWith('ar') ? 'ar' : verbo.endsWith('er') ? 'er' : 'ir'; }
+function raiz(verbo){ return verbo.slice(0, -2); }
+function participio(verbo){
+  const tipo = tipoVerbo(verbo);
+  return raiz(verbo) + endings[tipo].participio;
+}
+function conjugar(verbo, tiempoKey, persona){
+  const tipo = tipoVerbo(verbo);
+  switch(tiempoKey){
+    case 'presente':
+      return raiz(verbo) + endings[tipo].presente[persona];
+    case 'imperfecto':
+      return raiz(verbo) + endings[tipo].imperfecto[persona];
+    case 'preteritoPerfectoSimple':
+      return raiz(verbo) + endings[tipo].preteritoPerfectoSimple[persona];
+    case 'futuro':
+      return verbo + endings.futuro[persona];
+    case 'preteritoPerfectoCompuesto':
+      return haberPresente[persona] + ' ' + participio(verbo);
+    case 'pluscuamperfecto':
+      return haberImperfecto[persona] + ' ' + participio(verbo);
+    default:
+      return '';
+  }
+}
+function analysisMetaFromTiempoKey(tiempoKey, personaIndex){
+  const personaTxt = ['primera','segunda','tercera'][personaIndex % 3];
+  const numeroTxt = personaIndex < 3 ? 'singular' : 'plural';
+  let tiempoGeneral = 'pretérito';
+  let tipo = 'simple';
+  if(tiempoKey === 'presente'){
+    tiempoGeneral = 'presente';
+    tipo = 'simple';
+  } else if(tiempoKey === 'futuro'){
+    tiempoGeneral = 'futuro';
+    tipo = 'simple';
+  } else if(tiempoKey === 'preteritoPerfectoCompuesto'){
+    tiempoGeneral = 'pretérito';
+    tipo = 'compuesto';
+  } else if(tiempoKey === 'imperfecto'){
+    tiempoGeneral = 'pretérito';
+    tipo = 'imperfecto';
+  } else if(tiempoKey === 'pluscuamperfecto'){
+    tiempoGeneral = 'pretérito';
+    tipo = 'pluscuamperfecto';
+  }
+  return { tiempoGeneral, tipo, persona: personaTxt, numero: numeroTxt };
+}
+function analysisFieldsHTML(disabled=false){
+  const dis = disabled ? 'disabled' : '';
+  return `
+    <div class="analysis-grid">
+      <div class="field"><label for="selTiempoGeneral">Tiempo verbal</label>
+        <select id="selTiempoGeneral" ${dis}>
+          <option value="">Elige una opción</option>
+          <option value="presente">Presente</option>
+          <option value="pretérito">Pretérito</option>
+          <option value="futuro">Futuro</option>
+        </select>
+      </div>
+      <div class="field"><label for="selTipo">Tipo de tiempo</label>
+        <select id="selTipo" ${dis}>
+          <option value="">Elige una opción</option>
+          <option value="simple">Simple</option>
+          <option value="compuesto">Compuesto</option>
+          <option value="imperfecto">Imperfecto</option>
+          <option value="pluscuamperfecto">Pluscuamperfecto</option>
+        </select>
+      </div>
+      <div class="field"><label for="selPersona">Persona</label>
+        <select id="selPersona" ${dis}>
+          <option value="">Elige una opción</option>
+          <option value="primera">Primera</option>
+          <option value="segunda">Segunda</option>
+          <option value="tercera">Tercera</option>
+        </select>
+      </div>
+      <div class="field"><label for="selNumero">Número</label>
+        <select id="selNumero" ${dis}>
+          <option value="">Elige una opción</option>
+          <option value="singular">Singular</option>
+          <option value="plural">Plural</option>
+        </select>
+      </div>
+    </div>`;
+}
+function makeConjugationQuestion(tiempoKey){
+  const tiempo = tiempos.find(t => t.key === tiempoKey);
+  const verbo = randomChoice(verbos);
+  const persona = Math.floor(Math.random()*6);
+  const respuesta = conjugar(verbo, tiempoKey, persona);
+  return {
+    kind:'conjugacion',
+    verbo, persona, tiempoKey, tiempoNombre: tiempo.nombre,
+    respuesta,
+    promptLines:[
+      ['Verbo:', verbo],
+      ['Tiempo:', tiempo.nombre],
+      ['Persona:', personasBonitas[persona]]
+    ]
+  };
+}
+function makeAnalysisQuestion(tiempoKey){
+  const tiempo = tiempos.find(t => t.key === tiempoKey);
+  const verbo = randomChoice(verbos);
+  const persona = Math.floor(Math.random()*6);
+  const forma = conjugar(verbo, tiempoKey, persona);
+  const opcionesSujetos = personaSubjectOptions(persona);
+  const sujeto = randomChoice(opcionesSujetos);
+  const meta = analysisMetaFromTiempoKey(tiempoKey, persona);
+  return {
+    kind:'analisis',
+    verbo, persona, tiempoKey, tiempoNombre: tiempo.nombre,
+    frase: sujeto + ' ' + forma,
+    respuesta: tiempo.nombre,
+    analysisExpected: meta,
+    promptLines:[
+      ['Frase:', sujeto + ' ' + forma],
+      ['Analiza:', 'selecciona tiempo, tipo, persona y número']
+    ]
+  };
+}
+function buildMission(type){
+  let list = [];
+  if(type === 1){
+    for(const t of tiempos){ list.push(makeConjugationQuestion(t.key), makeConjugationQuestion(t.key)); }
+  } else if(type === 2){
+    for(const t of tiempos){ list.push(makeAnalysisQuestion(t.key), makeAnalysisQuestion(t.key)); }
+  } else {
+    for(const t of tiempos){ list.push(makeConjugationQuestion(t.key), makeAnalysisQuestion(t.key)); }
+  }
+  return shuffle(list);
+}
+function resetGameData(){
+  state.energia = 50; state.puntos = 0; state.pistas = 0; state.racha = 0;
+  state.currentIndex = 0; state.usedHint = false; state.finishedAt = null;
+  state.awaitingNext = false; state.lastFeedback = null;
+}
+function renderHome(){
+  app.innerHTML = `
+    <div class="row">
+      <div class="center">
+        <span class="badge">Introducción guiada con el verbo modelo: comer</span>
+        <h2>Antes del viaje, repasamos los tiempos verbales</h2>
+        <p class="small">En las explicaciones usamos siempre <strong>comer</strong>. En los ejercicios aparecerán 10 verbos regulares distintos.</p>
+        <p><input id="nombreInput" type="text" maxlength="24" placeholder="Escribe tu nombre o alias" /></p>
+      </div>
+      <div class="intro-grid">
+        <div class="mini"><h4>Presente</h4><div>yo como</div></div>
+        <div class="mini"><h4>Pretérito perfecto compuesto</h4><div>yo he comido</div></div>
+        <div class="mini"><h4>Pretérito imperfecto</h4><div>yo comía</div></div>
+        <div class="mini"><h4>Pretérito perfecto simple</h4><div>yo comí</div></div>
+        <div class="mini"><h4>Pretérito pluscuamperfecto</h4><div>yo había comido</div></div>
+        <div class="mini"><h4>Futuro simple</h4><div>yo comeré</div></div>
+      </div>
+      <div class="help">
+        <strong>Ayuda rápida:</strong>
+        <ul>
+          <li><strong>Ayer</strong> suele señalar pasado.</li>
+          <li><strong>Ahora</strong> suele señalar presente.</li>
+          <li><strong>Mañana</strong> suele señalar futuro.</li>
+          <li>Puedes responder con solo la forma verbal o con el sujeto delante.</li>
+          <li>Si olvidas una tilde y la forma es correcta, se dará por buena con aviso.</li>
+          <li>Si usas pista, ganarás menos puntos.</li>
+        </ul>
+      </div>
+      <div class="btns">
+        <button onclick="startMission(1)">🌍 Itinerario 1 · Despegue rápido</button>
+        <button onclick="startMission(2)" class="secondary">🌕 Itinerario 2 · Radar lingüístico</button>
+        <button onclick="startMission(3)" class="ghost">🌠 Itinerario 3 · Misión completa</button>
+      </div>
+    </div>`;
+}
+window.startMission = function(type){
+  const nombreInput = document.getElementById('nombreInput');
+  state.nombre = (nombreInput?.value || '').trim() || 'Astronauta';
+  resetGameData();
+  state.missionType = type;
+  state.missionLabel = type === 1 ? 'Despegue rápido' : type === 2 ? 'Radar lingüístico' : 'Misión completa';
+  state.questions = buildMission(type);
+  renderQuestion();
+}
+function renderStats(){
+  return `
+    <div class="stats">
+      <div class="stat"><strong>${state.nombre}</strong><span>Jugador/a</span></div>
+      <div class="stat"><strong>${state.missionLabel}</strong><span>Itinerario</span></div>
+      <div class="stat"><strong>${state.energia}</strong><span>Energía</span></div>
+      <div class="stat"><strong>${state.puntos}</strong><span>Puntos</span></div>
+      <div class="stat"><strong>${state.pistas}</strong><span>Pistas usadas</span></div>
+    </div>`;
+}
+function renderQuestion(){
+  const q = state.questions[state.currentIndex];
+  const progress = `${state.currentIndex + 1} / ${state.questions.length}`;
+  const feedbackBlock = state.lastFeedback ? state.lastFeedback : '';
+  const helpBlock = state.usedHint ? `<div class="help"><strong>Pista:</strong> ${hintText(q)}</div>` : '';
+  app.innerHTML = `
+    ${renderStats()}
+    <div class="center"><span class="badge">Pregunta ${progress}</span></div>
+    <div class="question">
+      <div class="question-title">🚀 Modo indicativo</div>
+      ${q.promptLines.map(([k,v]) => `<div class="linea"><div class="label">${k}</div><div>${v}</div></div>`).join('')}
+    </div>
+    <div class="center small">${q.kind === 'conjugacion' ? 'Escribe la forma verbal correcta.' : 'Selecciona cada parte del análisis desde las listas, igual que en el itinerario 2.'}</div>
+    ${q.kind === 'conjugacion'
+      ? `<p class="center"><input id="respuestaInput" type="text" autocomplete="off" ${state.awaitingNext ? 'disabled' : ''} placeholder="Escribe aquí tu respuesta" /></p>`
+      : analysisFieldsHTML(state.awaitingNext)}
+    <div class="btns">
+      <button onclick="submitAnswer()" ${state.awaitingNext ? 'disabled' : ''}>Responder</button>
+      <button class="secondary" onclick="showHint()" ${state.awaitingNext || state.usedHint ? 'disabled' : ''}>Pista ❓</button>
+      <button class="ghost" onclick="renderHome()">Volver al inicio</button>
+    </div>
+    ${helpBlock}
+    ${feedbackBlock}
+  `;
+  if(q.kind === 'analisis'){
+    const expected = q.analysisExpected || {};
+    const selTiempo = document.getElementById('selTiempoGeneral');
+    const selTipo = document.getElementById('selTipo');
+    const selPersona = document.getElementById('selPersona');
+    const selNumero = document.getElementById('selNumero');
+    if(expected && state.awaitingNext){
+      if(selTiempo) selTiempo.value = expected.tiempoGeneral || '';
+      if(selTipo) selTipo.value = expected.tipo || '';
+      if(selPersona) selPersona.value = expected.persona || '';
+      if(selNumero) selNumero.value = expected.numero || '';
+    }
+  }
+  if(!state.awaitingNext && q.kind === 'conjugacion'){
+    const input = document.getElementById('respuestaInput');
+    if(input){ input.focus(); input.addEventListener('keydown', e => { if(e.key === 'Enter') submitAnswer(); }); }
+  }
+}
+function hintText(q){
+  if(q.kind === 'conjugacion'){
+    const r = q.respuesta;
+    const chunk = r.slice(0, Math.min(5, r.length));
+    return `Empieza por: <strong>${chunk}</strong>`;
+  }
+  return `Piensa primero si la frase está en presente, pretérito o futuro. Después elige el tipo y señala persona y número.`;
+}
+window.showHint = function(){
+  if(state.awaitingNext || state.usedHint) return;
+  state.usedHint = true;
+  state.pistas += 1;
+  renderQuestion();
+}
+function evaluateConjugation(q, answer){
+  const cleanAnswer = removeSubjectIfPresent(answer, q.persona);
+  const expected = normalize(q.respuesta);
+  const exact = cleanAnswer === expected;
+  return {
+    isCorrect: exact,
+    missingAccentOnly: exact && normalize(cleanAnswer) === expected && cleanAnswer !== q.respuesta.toLowerCase()
+  };
+}
+function evaluateAnalysis(q, answer){
+  const expected = q.analysisExpected || {};
+  const tiempoGeneral = normalize(document.getElementById('selTiempoGeneral')?.value || '');
+  const tipo = normalize(document.getElementById('selTipo')?.value || '');
+  const persona = normalize(document.getElementById('selPersona')?.value || '');
+  const numero = normalize(document.getElementById('selNumero')?.value || '');
+  const expectedTiempo = normalize(expected.tiempoGeneral || '');
+  const expectedTipo = normalize(expected.tipo || '');
+  const expectedPersona = normalize(expected.persona || '');
+  const expectedNumero = normalize(expected.numero || '');
+  return {
+    isCorrect: tiempoGeneral === expectedTiempo && tipo === expectedTipo && persona === expectedPersona && numero === expectedNumero,
+    missingAccentOnly: false,
+    selected: { tiempoGeneral, tipo, persona, numero },
+    expected
+  };
+}
+function makeFeedbackHTML(type, title, lines, withNext=true){
+  return `<div class="feedback ${type}"><h3>${title}</h3>${lines.map(x => `<p>${x}</p>`).join('')}${withNext ? '<div class="btns"><button onclick="nextQuestion()">Siguiente pregunta ➜</button></div>' : ''}</div>`;
+}
+window.submitAnswer = function(){
+  if(state.awaitingNext) return;
+  const q = state.questions[state.currentIndex];
+  const answer = q.kind === 'conjugacion' ? (document.getElementById('respuestaInput')?.value || '') : '';
+  const result = q.kind === 'conjugacion' ? evaluateConjugation(q, answer) : evaluateAnalysis(q, answer);
+
+  if(result.isCorrect){
+    const gain = state.usedHint ? 6 : 10;
+    state.energia += gain;
+    state.puntos += gain;
+    state.racha += 1;
+    let extra = '';
+    if(state.racha > 0 && state.racha % 3 === 0){
+      state.puntos += 10; state.energia += 10;
+      extra = `<p>🚀 ¡Racha de 3 aciertos! Ganas <strong>10 puntos extra</strong> y <strong>10 de energía extra</strong>.</p>`;
+    }
+    const lines = [
+      `✅ Muy bien, <strong>${state.nombre}</strong>. La respuesta es correcta.`,
+      state.usedHint ? 'Has usado pista, así que la recompensa es menor: <strong>+6 puntos</strong> y <strong>+6 de energía</strong>.' : 'No has usado pista: ganas <strong>+10 puntos</strong> y <strong>+10 de energía</strong>.',
+      q.kind === 'conjugacion' ? `Forma correcta: <strong>${q.respuesta}</strong>.` : `Análisis correcto: <strong>${q.analysisExpected.tiempoGeneral}</strong>, <strong>${q.analysisExpected.tipo}</strong>, <strong>${q.analysisExpected.persona}</strong> persona del <strong>${q.analysisExpected.numero}</strong>.`
+    ];
+    if(result.missingAccentOnly){
+      lines.push(`⚠️ Se da por buena tu respuesta, pero sería perfecto escribirla con tilde si corresponde.`);
+    }
+    if(extra) lines.push(extra);
+    state.lastFeedback = makeFeedbackHTML(result.missingAccentOnly ? 'warn' : 'ok', 'Respuesta correcta', lines, true);
+  } else {
+    state.energia -= 5;
+    state.racha = 0;
+    const lines = [
+      `❌ Esta vez no es correcta, <strong>${state.nombre}</strong>.`,
+      q.kind === 'conjugacion' ? `La forma correcta era <strong>${q.respuesta}</strong>.` : `El análisis correcto era <strong>${q.analysisExpected.tiempoGeneral}</strong>, <strong>${q.analysisExpected.tipo}</strong>, <strong>${q.analysisExpected.persona}</strong> persona del <strong>${q.analysisExpected.numero}</strong>.`,
+      'Pierdes <strong>5 puntos de energía</strong>, pero puedes seguir avanzando.'
+    ];
+    if(q.kind === 'conjugacion'){
+      lines.push(`Recuerda que puedes escribir solo la forma verbal o el sujeto correcto seguido de la forma verbal.`);
+    }
+    state.lastFeedback = makeFeedbackHTML('bad', 'Vamos a aprender de este intento', lines, true);
+  }
+  state.awaitingNext = true;
+  renderQuestion();
+}
+window.nextQuestion = function(){
+  state.currentIndex += 1;
+  state.usedHint = false;
+  state.awaitingNext = false;
+  state.lastFeedback = null;
+  if(state.currentIndex >= state.questions.length){
+    state.finishedAt = new Date();
+    renderSummary();
+  } else {
+    renderQuestion();
+  }
+}
+function rankLabel(score){
+  if(score >= 90) return '🥇 Comandante lunar';
+  if(score >= 70) return '🥈 Piloto espacial';
+  if(score >= 50) return '🥉 Astronauta en prácticas';
+  return '🌍 Explorador en entrenamiento';
+}
+function renderSummary(){
+  const dt = state.finishedAt || new Date();
+  app.innerHTML = `
+    <div class="center">
+      <h2>🌕 Resumen final de la misión</h2>
+      <p class="small">Has completado el itinerario. Aquí tienes tu informe espacial.</p>
+    </div>
+    <div class="question">
+      <div class="linea"><div class="label">Nombre:</div><div>${state.nombre}</div></div>
+      <div class="linea"><div class="label">Fecha:</div><div>${dt.toLocaleDateString()} ${dt.toLocaleTimeString()}</div></div>
+      <div class="linea"><div class="label">Itinerario:</div><div>${state.missionLabel}</div></div>
+      <div class="linea"><div class="label">Puntos:</div><div>${state.puntos}</div></div>
+      <div class="linea"><div class="label">Energía:</div><div>${state.energia}</div></div>
+      <div class="linea"><div class="label">Pistas:</div><div>${state.pistas}</div></div>
+      <div class="linea"><div class="label">Resultado:</div><div>${rankLabel(state.puntos)}</div></div>
+    </div>
+    <div class="btns">
+      <button onclick="renderHome()">Jugar otra vez</button>
+    </div>
+    <p class="center small">Versión ${VERSION} · ${BUILD_TAG}</p>
+  `;
+}
+renderHome();
+</script>
+</body>
+</html>
